@@ -25,10 +25,11 @@ another_element() {
 }
 
 contain_element() {
-  local e match="$1"
-  shift
-  for e; do [[ "$e" == "$match" ]] && return 0; done
-  return 1
+    # Source: https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
+    local e match="$1"
+    shift
+    for e; do [[ "$e" == "$match" ]] && return 0; done
+    return 1
 }
 
 get_skill_list() {
@@ -40,12 +41,15 @@ get_skill_list() {
 	while [[ $(another_element .freelance.professionalExperiences[$i].skills[$j]) = "true" ]]
 	do
 	    SKILL=$(jq ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
-            SKILL_LIST+=$SKILL
+	    if ! contain_element $SKILL "${SKILL_LIST[@]}"
+            then
+		SKILL_LIST+=($SKILL)
+            fi
 	    j=$j+1
 	done
         i=$i+1
     done
-    echo $SKILL_LIST
+    echo ${SKILL_LIST[@]}
 }
 
 # MAIN
