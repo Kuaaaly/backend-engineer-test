@@ -94,7 +94,27 @@ get_skill_duration_non_overlap() {
         done
         i=$i+1
     done
+    compute_overlap "EXP_DURATION_LIST"
     print_associative_array "EXP_DURATION_LIST"
+}
+
+compute_overlap() {
+    var=$(declare -p "$1")
+    eval "declare -A _arr="${var#*=}
+    local i=1
+    local OVERLAP_DURATION=0
+    KEYS=(${!_arr[@]})
+    while [[ i -lt ${#_arr[@]} ]]
+    do
+	echo Calculating diff between ${KEYS[${i}]} AND ${_arr[${KEYS[$((i-1))]}]}
+	OVERLAP=$(( ($(date --date=${KEYS[${i}]} +%s) - $(date --date=${_arr[${KEYS[$((i-1))]}]} +%s) )/(60*60*24*30) ))
+	if [[ $OVERLAP -lt 0 ]]
+	then
+		OVERLAP_DURATION=$((OVERLAP_DURATION + OVERLAP))
+	fi
+	i=$i+1
+    done
+    echo $OVERLAP_DURATION
 }
 
 compute_duration() {
@@ -107,7 +127,7 @@ compute_duration() {
 # MAIN
 get_skill_list
 get_skill_duration
-get_skill_duration_non_overlap "Javascript"
+get_skill_duration_non_overlap "Java"
 print_associative_array "SKILL_LIST"
 print_associative_array "SKILL_DURATION_LIST"
 
