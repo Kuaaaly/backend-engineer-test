@@ -53,17 +53,26 @@ get_skill_list() {
 
 get_skill_duration() {
     local i=0
+    local SKILL_NAME=$1
+    declare -A EXP_DURATION_LIST
     while another_element .freelance.professionalExperiences[$i]
     do
         local j=0
         while another_element .freelance.professionalExperiences[$i].skills[$j]
-        do
-            local SKILL_NAME=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
-	    SKILL_DURATION_LIST[$SKILL_NAME]=$(( ${SKILL_DURATION_LIST[$SKILL_NAME]} + $(compute_duration ".freelance.professionalExperiences[$i]") )) 
+	do
+	    if [[ $(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE) = $SKILL_NAME ]]
+	    then
+	        START_DATE=$(jq -r ".freelance.professionalExperiences[$i].startDate" $INPUT_FILE)
+                END_DATE=$(jq -r ".freelance.professionalExperiences[$i].endDate" $INPUT_FILE)
+                EXP_DURATION_LIST[$START_DATE]=$END_DATE
+	    fi
             j=$j+1
         done
         i=$i+1
     done
+    SKILL_DURATION_LIST[$SKILL_NAME]=$(( ${SKILL_DURATION_LIST[$SKILL_NAME]}\
+	    + $(compute_duration "EXP_DURATION_LIST")\
+	    + $(compute_overlap "EXP_DURATION_LIST") ))
 }
 
 print_associative_array() {
@@ -75,29 +84,6 @@ print_associative_array() {
     done
 }
 
-get_skill_duration_non_overlap() {
-    local i=0
-    local SKILL_NAME=$1
-    declare -A EXP_DURATION_LIST
-    while another_element .freelance.professionalExperiences[$i]
-    do
-        local j=0
-        while another_element .freelance.professionalExperiences[$i].skills[$j]
-        do
-            if [[ $(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE) = $SKILL_NAME ]]
-	    then
-                START_DATE=$(jq -r ".freelance.professionalExperiences[$i].startDate" $INPUT_FILE)
-                END_DATE=$(jq -r ".freelance.professionalExperiences[$i].endDate" $INPUT_FILE)
-		EXP_DURATION_LIST[$START_DATE]=$END_DATE
-	    fi
-            j=$j+1
-        done
-        i=$i+1
-    done
-    compute_overlap "EXP_DURATION_LIST"
-    print_associative_array "EXP_DURATION_LIST"
-}
-
 compute_overlap() {
     var=$(declare -p "$1")
     eval "declare -A _arr="${var#*=}
@@ -106,7 +92,6 @@ compute_overlap() {
     KEYS=(${!_arr[@]})
     while [[ i -lt ${#_arr[@]} ]]
     do
-	echo Calculating diff between ${KEYS[${i}]} AND ${_arr[${KEYS[$((i-1))]}]}
 	OVERLAP=$(( ($(date --date=${KEYS[${i}]} +%s) - $(date --date=${_arr[${KEYS[$((i-1))]}]} +%s) )/(60*60*24*30) ))
 	if [[ $OVERLAP -lt 0 ]]
 	then
@@ -118,16 +103,26 @@ compute_overlap() {
 }
 
 compute_duration() {
-    START_DATE=$(jq -r "$1.startDate" $INPUT_FILE)
-    END_DATE=$(jq -r "$1.endDate" $INPUT_FILE)
-    # Duration computation in months
-    echo $(( ($(date --date=$END_DATE +%s) - $(date --date=$START_DATE +%s) )/(60*60*24*30) ))
+    var=$(declare -p "$1")
+    eval "declare -A _arr="${var#*=}
+    local i=0
+    local DURATION=0
+    KEYS=(${!_arr[@]})
+    while [[ i -lt ${#_arr[@]} ]]
+    do
+	DURATION=$(( $DURATION + (($(date --date=${_arr[${KEYS[$i]}]} +%s) - $(date --date=${KEYS[$i]} +%s) )/(60*60*24*30)) ))
+        i=$i+1
+    done
+    echo $DURATION
 }
 
 # MAIN
 get_skill_list
-get_skill_duration
-get_skill_duration_non_overlap "Java"
+get_skill_duration "Javascript"
+get_skill_duration "React"
+get_skill_duration "Java"
+get_skill_duration "Node.js"
+get_skill_duration "MySQL"
 print_associative_array "SKILL_LIST"
 print_associative_array "SKILL_DURATION_LIST"
 
