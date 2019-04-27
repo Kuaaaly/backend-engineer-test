@@ -20,9 +20,9 @@ another_element() {
     element=$(jq "$1" examples/freelancer.json)
     if [[ $element != "null" ]]
     then
-	return 0
+        return 0
     else
-	return 1
+        return 1
     fi
 }
 
@@ -34,7 +34,7 @@ compute_duration() {
     KEYS=(${!_arr[@]})
     while [[ i -lt ${#_arr[@]} ]]
     do
-	DURATION=$(( $DURATION + (($(date --date=${_arr[${KEYS[$i]}]} +%s) - $(date --date=${KEYS[$i]} +%s) )/(60*60*24*30)) ))
+        DURATION=$(( $DURATION + (($(date --date=${_arr[${KEYS[$i]}]} +%s) - $(date --date=${KEYS[$i]} +%s) )/(60*60*24*30)) ))
         i=$i+1
     done
     echo $DURATION
@@ -48,12 +48,12 @@ compute_overlap() {
     KEYS=(${!_arr[@]})
     while [[ i -lt ${#_arr[@]} ]]
     do
-	OVERLAP=$(( ($(date --date=${KEYS[${i}]} +%s) - $(date --date=${_arr[${KEYS[$((i-1))]}]} +%s) )/(60*60*24*30) ))
-	if [[ $OVERLAP -lt 0 ]]
-	then
-		OVERLAP_DURATION=$((OVERLAP_DURATION + OVERLAP))
-	fi
-	i=$i+1
+        OVERLAP=$(( ($(date --date=${KEYS[${i}]} +%s) - $(date --date=${_arr[${KEYS[$((i-1))]}]} +%s) )/(60*60*24*30) ))
+        if [[ $OVERLAP -lt 0 ]]
+        then
+            OVERLAP_DURATION=$((OVERLAP_DURATION + OVERLAP))
+        fi
+        i=$i+1
     done
     echo $OVERLAP_DURATION
 }
@@ -63,10 +63,10 @@ display_result() {
     echo '{"freelance": {"id": 42,"computedSkills":['
     for k in "${!SKILL_LIST[@]}"
     do
-	if [[ $k = ${KEYS[$((${#SKILL_LIST[@]}-1))]} ]] 
-	then
+        if [[ $k = ${KEYS[$((${#SKILL_LIST[@]}-1))]} ]]
+        then
             echo "{\"id\": ${SKILL_LIST[$k]},\"name\": \"$k\",\"durationInMonths\": ${SKILL_DURATION_LIST[$k]}}"
-	else
+        else
             echo "{\"id\": ${SKILL_LIST[$k]},\"name\": \"$k\",\"durationInMonths\": ${SKILL_DURATION_LIST[$k]}},"
         fi
     done
@@ -90,38 +90,38 @@ get_skill_duration() {
     do
         local j=0
         while another_element .freelance.professionalExperiences[$i].skills[$j]
-	do
-	    if [[ $(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE) = $SKILL_NAME ]]
-	    then
-	        START_DATE=$(jq -r ".freelance.professionalExperiences[$i].startDate" $INPUT_FILE)
-                END_DATE=$(jq -r ".freelance.professionalExperiences[$i].endDate" $INPUT_FILE)
-                EXP_DURATION_LIST[$START_DATE]=$END_DATE
-	    fi
-            j=$j+1
+    do
+        if [[ $(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE) = $SKILL_NAME ]]
+        then
+            START_DATE=$(jq -r ".freelance.professionalExperiences[$i].startDate" $INPUT_FILE)
+            END_DATE=$(jq -r ".freelance.professionalExperiences[$i].endDate" $INPUT_FILE)
+            EXP_DURATION_LIST[$START_DATE]=$END_DATE
+        fi
+        j=$j+1
         done
-        i=$i+1
+    i=$i+1
     done
     SKILL_DURATION_LIST[$SKILL_NAME]=$((\
-	    ${SKILL_DURATION_LIST[$SKILL_NAME]}\
-	    + $(compute_duration "EXP_DURATION_LIST")\
-	    + $(compute_overlap "EXP_DURATION_LIST")\
-	    ))
+        ${SKILL_DURATION_LIST[$SKILL_NAME]}\
+        + $(compute_duration "EXP_DURATION_LIST")\
+        + $(compute_overlap "EXP_DURATION_LIST")\
+        ))
 }
 
 get_skill_list() {
     local i=0
     while another_element .freelance.professionalExperiences[$i]
     do
-	local j=0
-	while another_element .freelance.professionalExperiences[$i].skills[$j]
-	do
-	    local SKILL_NAME=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
-	    local SKILL_ID=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].id" $INPUT_FILE)
-            SKILL_LIST[$SKILL_NAME]=$SKILL_ID
-	    SKILL_DURATION_LIST[$SKILL_NAME]=0
-	    j=$j+1
-	done
-        i=$i+1
+    local j=0
+    while another_element .freelance.professionalExperiences[$i].skills[$j]
+    do
+        local SKILL_NAME=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
+        local SKILL_ID=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].id" $INPUT_FILE)
+        SKILL_LIST[$SKILL_NAME]=$SKILL_ID
+        SKILL_DURATION_LIST[$SKILL_NAME]=0
+        j=$j+1
+    done
+    i=$i+1
     done
 }
 
