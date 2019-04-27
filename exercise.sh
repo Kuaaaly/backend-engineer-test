@@ -9,39 +9,45 @@
 set -eu
 
 # VARIABLES
+INPUT_FILE=examples/freelancer.json
 
 # FUNCTIONS
-hello_world () {
-    echo "Hello World!"
-}
-
-read_freelancer_data() {
-    i=0
-    while [[ $i -lt 5 ]]
-    do
-	if [[ is_there_another_exp ]]
-	then
-	    echo "C'est fini !"
-	else
-            jq ".freelance.professionalExperiences[$i]" examples/freelancer.json
-	fi
-	i=$i+1
-    done	
-}
-
-is_there_another_exp() {
+another_element() {
     nl='
     '
-    if [[ $(jq ".freelance.professionalExperiences[$1]" examples/freelancer.json) != *$nl*  ]]
+    element=$(jq "$1" examples/freelancer.json)
+    if [[ $element != "null" ]]
     then
-	return 0
+	echo true
     else
-	return 1
+	echo false
     fi
 }
 
-# MAIN
-hello_world
-read_freelancer_data
+contain_element() {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
 
+get_skill_list() {
+    i=0
+    declare -a SKILL_LIST
+    while [[ $(another_element .freelance.professionalExperiences[$i]) = "true" ]]
+    do
+	j=0
+	while [[ $(another_element .freelance.professionalExperiences[$i].skills[$j]) = "true" ]]
+	do
+	    SKILL=$(jq ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
+            SKILL_LIST+=$SKILL
+	    j=$j+1
+	done
+        i=$i+1
+    done
+    echo $SKILL_LIST
+}
+
+# MAIN
+get_skill_list
 
