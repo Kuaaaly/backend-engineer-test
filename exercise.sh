@@ -10,6 +10,7 @@ set -eu
 
 # VARIABLES
 INPUT_FILE=examples/freelancer.json
+declare -a SKILL_LIST
 
 # FUNCTIONS
 another_element() {
@@ -24,7 +25,7 @@ another_element() {
     fi
 }
 
-contain_element() {
+element_in_array() {
     # Source: https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
     local e match="$1"
     shift
@@ -34,14 +35,13 @@ contain_element() {
 
 get_skill_list() {
     i=0
-    declare -a SKILL_LIST
     while another_element .freelance.professionalExperiences[$i]
     do
 	j=0
 	while another_element .freelance.professionalExperiences[$i].skills[$j]
 	do
 	    SKILL=$(jq ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
-	    if ! contain_element $SKILL "${SKILL_LIST[@]}"
+	    if ! element_in_array $SKILL "${SKILL_LIST[@]}"
             then
 		SKILL_LIST+=($SKILL)
             fi
@@ -49,9 +49,16 @@ get_skill_list() {
 	done
         i=$i+1
     done
-    echo ${SKILL_LIST[@]}
+}
+
+compute_duration() {
+    START_DATE=$(jq -r "$1.startDate" $INPUT_FILE)
+    END_DATE=$(jq -r "$1.endDate" $INPUT_FILE)
+    # Duration computation in months
+    echo $(( ($(date --date=$END_DATE +%s) - $(date --date=$START_DATE +%s) )/(60*60*24*30) ))
 }
 
 # MAIN
 get_skill_list
-
+echo ${SKILL_LIST[@]}
+compute_duration ".freelance.professionalExperiences[2]"
