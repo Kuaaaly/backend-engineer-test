@@ -18,9 +18,9 @@ another_element() {
     element=$(jq "$1" examples/freelancer.json)
     if [[ $element != "null" ]]
     then
-	echo true
+	return 0
     else
-	echo false
+	return 1
     fi
 }
 
@@ -35,10 +35,10 @@ contain_element() {
 get_skill_list() {
     i=0
     declare -a SKILL_LIST
-    while [[ $(another_element .freelance.professionalExperiences[$i]) = "true" ]]
+    while another_element .freelance.professionalExperiences[$i]
     do
 	j=0
-	while [[ $(another_element .freelance.professionalExperiences[$i].skills[$j]) = "true" ]]
+	while another_element .freelance.professionalExperiences[$i].skills[$j]
 	do
 	    SKILL=$(jq ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
 	    if ! contain_element $SKILL "${SKILL_LIST[@]}"
