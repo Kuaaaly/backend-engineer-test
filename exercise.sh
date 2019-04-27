@@ -10,7 +10,8 @@ set -eu
 
 # VARIABLES
 INPUT_FILE=examples/freelancer.json
-declare -a SKILL_LIST
+declare -A SKILL_LIST
+declare -A SKILL_DURATION_LIST
 
 # FUNCTIONS
 another_element() {
@@ -40,14 +41,36 @@ get_skill_list() {
 	j=0
 	while another_element .freelance.professionalExperiences[$i].skills[$j]
 	do
-	    SKILL=$(jq ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
-	    if ! element_in_array $SKILL "${SKILL_LIST[@]}"
-            then
-		SKILL_LIST+=($SKILL)
-            fi
+	    SKILL_NAME=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
+	    SKILL_ID=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].id" $INPUT_FILE)
+            SKILL_LIST[$SKILL_NAME]=$SKILL_ID
+	    SKILL_DURATION_LIST[$SKILL_NAME]=0
 	    j=$j+1
 	done
         i=$i+1
+    done
+}
+
+get_skill_duration() {
+    i=0
+    while another_element .freelance.professionalExperiences[$i]
+    do
+        j=0
+        while another_element .freelance.professionalExperiences[$i].skills[$j]
+        do
+            SKILL_NAME=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
+	    SKILL_DURATION_LIST[$SKILL_NAME]=$(( ${SKILL_DURATION_LIST[$SKILL_NAME]} + $(compute_duration ".freelance.professionalExperiences[$i]") )) 
+            j=$j+1
+        done
+        i=$i+1
+    done
+}
+
+print_duration_list_array() {
+    for KEY in "${!SKILL_DURATION_LIST[@]}"
+    do
+        # Print the KEY value
+        echo "$KEY : ${SKILL_DURATION_LIST[$KEY]}"
     done
 }
 
@@ -60,5 +83,5 @@ compute_duration() {
 
 # MAIN
 get_skill_list
-echo ${SKILL_LIST[@]}
-compute_duration ".freelance.professionalExperiences[2]"
+get_skill_duration
+print_duration_list_array
