@@ -15,8 +15,6 @@ declare -A SKILL_DURATION_LIST
 
 # FUNCTIONS
 another_element() {
-    local nl='
-    '
     element=$(jq "$1" examples/freelancer.json)
     if [[ $element != "null" ]]
     then
@@ -35,7 +33,7 @@ compute_duration() {
     while [[ i -lt ${#_arr[@]} ]]
     do
         DURATION=$(( $DURATION + (($(date --date=${_arr[${KEYS[$i]}]} +%s) - $(date --date=${KEYS[$i]} +%s) )/(60*60*24*30)) ))
-        i=$i+1
+        i=$((i+1))
     done
     echo $DURATION
 }
@@ -43,23 +41,30 @@ compute_duration() {
 compute_overlap() {
     var=$(declare -p "$1")
     eval "declare -A _arr="${var#*=}
+    # var i is initialised to 1 because we need two experience dates to make a
+    # comparison. So, in the first round, we will consider the first and the
+    # second experience
     local i=1
     local OVERLAP_DURATION=0
     KEYS=(${!_arr[@]})
     while [[ i -lt ${#_arr[@]} ]]
     do
-        OVERLAP=$(( ($(date --date=${KEYS[${i}]} +%s) - $(date --date=${_arr[${KEYS[$((i-1))]}]} +%s) )/(60*60*24*30) ))
+        # OVERLAP is computed by substracting the startDate of the experience
+        # E to the endDate of the experience E - 1. This assume that the
+        # experiences are ordered from the oldest to the most recent one.
+        OVERLAP=$(( ($(date --date=${KEYS[${i}]} +%s)\- $(date --date=${_arr[${KEYS[$((i-1))]}]} +%s) )/(60*60*24*30) ))
         if [[ $OVERLAP -lt 0 ]]
         then
             OVERLAP_DURATION=$((OVERLAP_DURATION + OVERLAP))
         fi
-        i=$i+1
+        i=$((i+1))
     done
     echo $OVERLAP_DURATION
 }
 
 display_result() {
     KEYS=(${!SKILL_LIST[@]})
+    # here, freelance id is hard coded. This is bad
     echo '{"freelance": {"id": 42,"computedSkills":['
     for k in "${!SKILL_LIST[@]}"
     do
@@ -90,44 +95,46 @@ get_skill_duration() {
     do
         local j=0
         while another_element .freelance.professionalExperiences[$i].skills[$j]
-    do
-        if [[ $(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE) = $SKILL_NAME ]]
-        then
-            START_DATE=$(jq -r ".freelance.professionalExperiences[$i].startDate" $INPUT_FILE)
-            END_DATE=$(jq -r ".freelance.professionalExperiences[$i].endDate" $INPUT_FILE)
-            EXP_DURATION_LIST[$START_DATE]=$END_DATE
-        fi
-        j=$j+1
+        do
+            if [[ $(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE) = $SKILL_NAME ]]
+            then
+                START_DATE=$(jq -r ".freelance.professionalExperiences[$i].startDate" $INPUT_FILE)
+                END_DATE=$(jq -r ".freelance.professionalExperiences[$i].endDate" $INPUT_FILE)
+                EXP_DURATION_LIST[$START_DATE]=$END_DATE
+            fi
+            j=$((j+1))
         done
-    i=$i+1
+        i=$((i+1))
     done
+    # all duration are computed by adding the result of compute_duration and
+    # compute_overlap functions. compute_overlap always give a negative or a 0
+    # value, this is why this is an addition.
     SKILL_DURATION_LIST[$SKILL_NAME]=$((\
-        ${SKILL_DURATION_LIST[$SKILL_NAME]}\
-        + $(compute_duration "EXP_DURATION_LIST")\
-        + $(compute_overlap "EXP_DURATION_LIST")\
-        ))
+        $(compute_duration "EXP_DURATION_LIST")\
+        + $(compute_overlap "EXP_DURATION_LIST")))
 }
 
 get_skill_list() {
     local i=0
     while another_element .freelance.professionalExperiences[$i]
     do
-    local j=0
-    while another_element .freelance.professionalExperiences[$i].skills[$j]
-    do
-        local SKILL_NAME=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
-        local SKILL_ID=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].id" $INPUT_FILE)
-        SKILL_LIST[$SKILL_NAME]=$SKILL_ID
-        SKILL_DURATION_LIST[$SKILL_NAME]=0
-        j=$j+1
-    done
-    i=$i+1
+        local j=0
+        while another_element .freelance.professionalExperiences[$i].skills[$j]
+        do
+            local SKILL_NAME=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].name" $INPUT_FILE)
+            local SKILL_ID=$(jq -r ".freelance.professionalExperiences[$i].skills[$j].id" $INPUT_FILE)
+            SKILL_LIST[$SKILL_NAME]=$SKILL_ID
+            SKILL_DURATION_LIST[$SKILL_NAME]=0
+            j=$((j+1))
+        done
+        i=$((i+1))
     done
 }
 
 print_associative_array() {
     # this function is for debug purpose
-    # source : https://stackoverflow.com/questions/4069188/how-to-pass-an-associative-array-as-argument-to-a-function-in-bash
+    # source : https://stackoverflow.com/questions/4069188/how-to-pass-an-\
+    # associative-array-as-argument-to-a-function-in-bash
     var=$(declare -p "$1")
     eval "declare -A _arr="${var#*=}
     for k in "${!_arr[@]}"; do
