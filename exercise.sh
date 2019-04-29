@@ -52,7 +52,7 @@ compute_overlap() {
         # OVERLAP is computed by substracting the startDate of the experience
         # E to the endDate of the experience E - 1. This assume that the
         # experiences are ordered from the oldest to the most recent one.
-        OVERLAP=$(( ($(date --date=${KEYS[${i}]} +%s)\- $(date --date=${_arr[${KEYS[$((i-1))]}]} +%s) )/(60*60*24*30) ))
+        OVERLAP=$(( ($(date --date=${KEYS[${i}]} +%s) - $(date --date=${_arr[${KEYS[$((i-1))]}]} +%s) )/(60*60*24*30) ))
         if [[ $OVERLAP -lt 0 ]]
         then
             OVERLAP_DURATION=$((OVERLAP_DURATION + OVERLAP))
