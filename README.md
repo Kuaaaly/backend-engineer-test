@@ -2,8 +2,14 @@
 
 ### Run via Docker
 Running this code with Docker should simpler and faster. _Obviously, you should have Docker installed._
-1. Build: `docker build -t kuaaaly/backend-engineer-test:0.1 https://github.com/Kuaaaly/backend-engineer-test.git`
-1. Run: `docker run -it kuaaaly/backend-engineer-test:0.1 /bin/bash`
+1. Build:
+```
+docker build -t kuaaaly/backend-engineer-test:0.1 https://github.com/Kuaaaly/backend-engineer-test.git
+```
+1. Run:
+```
+docker run -it kuaaaly/backend-engineer-test:0.1 /bin/bash
+```
 1. Once you are in you can run the code by typing :
 ```
 cd /root/backend-engineer-test
@@ -46,20 +52,22 @@ The output should be the following:
 ```
 
 ### Run via Linux / macOS (not tested)
-The code requires:
-- GNU bash, version 4.4.19
-- jq-1.5-1
+Requirements:
+- bash version 4.4.19
+- jq version 1.5-1
+- git
 
-#### On macOS
-```
-brew install bash jq
-```
 
-#### On Ubuntu:
+| macOS | Ubuntu |
+|---|---|
+| `brew install bash git jq` | `apt-get install git jq` |
+
+Then:
 ```
-apt-get install git jq
+git clone https://github.com/Kuaaaly/backend-engineer-test.git
+cd backend-engineer-test
+./exercise.sh
 ```
-You can then `git clone` this repo, `cd backend-engineer-test` and run it with `./exercise.sh`
 
 ## Criticize it
 
