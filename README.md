@@ -1,7 +1,7 @@
 ## Run it
 
 ### Run via Docker
-Running this code with Docker should simpler and faster. _Obviously, you should have Docker installed._
+Running this code with Docker should be easier and faster. _Obviously, you should have Docker installed._
 1. Build:
 ```
 docker build -t kuaaaly/backend-engineer-test:0.1 https://github.com/Kuaaaly/backend-engineer-test.git
@@ -15,7 +15,7 @@ docker run -it kuaaaly/backend-engineer-test:0.1 /bin/bash
 cd /root/backend-engineer-test
 ./exercice.sh
 ```
-The output should be the following:
+The output should look like the following:
 ```
 {
   "freelance": {
