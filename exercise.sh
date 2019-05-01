@@ -24,7 +24,8 @@ another_element() {
 }
 
 compute_duration() {
-    get_associative_array $1
+    var=$(declare -p "$1")
+    eval "declare -A _arr="${var#*=}
     local i=0
     local DURATION=0
     KEYS=(${!_arr[@]})
@@ -39,7 +40,8 @@ compute_duration() {
 }
 
 compute_overlap() {
-    get_associative_array $1
+    var=$(declare -p "$1")
+    eval "declare -A _arr="${var#*=}
     # var i is initialised to 1 because we need two experience dates to make a
     # comparison. So, in the first round, we will consider the first and the
     # second experience
@@ -73,15 +75,11 @@ display_result() {
 }
 
 get_all_skills_duration() {
-    get_associative_array $1
+    var=$(declare -p "$1")
+    eval "declare -A _arr="${var#*=}
     for k in "${!_arr[@]}"; do
         get_skill_duration $k
     done
-}
-
-get_associative_array() {
-    var=$(declare -p "$1")
-    eval "declare -A _arr="${var#*=}
 }
 
 get_skill_duration() {
@@ -127,7 +125,8 @@ print_associative_array() {
     # this function is for debug purpose
     # source : https://stackoverflow.com/questions/4069188/how-to-pass-an-\
     # associative-array-as-argument-to-a-function-in-bash
-    get_associative_array $1
+    var=$(declare -p "$1")
+    eval "declare -A _arr="${var#*=}
     for k in "${!_arr[@]}"; do
         echo "$k: ${_arr[$k]}"
     done
