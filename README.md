@@ -71,4 +71,11 @@ cd backend-engineer-test
 
 ## Criticize it
 
-In progress...
+1. This part of the code:
+``` bash 
+var=$(declare -p "$1")
+eval "declare -A _arr="${var#*=}
+```
+is repeated 4 times, this is not "DRY-compliant". I looked for a while for a way to integrated it in a function but I did not find a solution for now. May be there is not...
+
+2. Actually, the script need the experiences to be ordered by startDate (from the most recent to the oldest). If the experiences are not well ordered the script will compute wrong values. This problem is pretty easy to fix if we add a function that order the experiences.
