@@ -24,21 +24,22 @@ another_element() {
 }
 
 compute_duration() {
-    var=$(declare -p "$1")
-    eval "declare -A _arr="${var#*=}
+    get_associative_array $1
     local i=0
     local DURATION=0
     KEYS=(${!_arr[@]})
     while [[ i -lt ${#_arr[@]} ]]; do
-        DURATION=$(( $DURATION + (($(date --date=${_arr[${KEYS[$i]}]} +%s) - $(date --date=${KEYS[$i]} +%s) )/(60*60*24*30)) ))
+        # DURATION is computed by substracting the startDate of a given
+        # experience to its endDate. As we are are in a while loop we do it
+        # for every single date rage matching the given experience
+        DURATION=$(( $DURATION + ($(date --date=${_arr[${KEYS[$i]}]} +%s) - $(date --date=${KEYS[$i]} +%s) ) / (60*60*24*30) ))
         i=$((i+1))
     done
     echo $DURATION
 }
 
 compute_overlap() {
-    var=$(declare -p "$1")
-    eval "declare -A _arr="${var#*=}
+    get_associative_array $1
     # var i is initialised to 1 because we need two experience dates to make a
     # comparison. So, in the first round, we will consider the first and the
     # second experience
@@ -60,8 +61,7 @@ compute_overlap() {
 
 display_result() {
     KEYS=(${!SKILL_LIST[@]})
-    # here, freelance id is hard coded. This is bad
-    echo '{"freelance": {"id": 42,"computedSkills":['
+    echo "{\"freelance\": {\"id\": $(jq -r ".freelance.id" $INPUT_FILE),\"computedSkills\":["
     for k in "${!SKILL_LIST[@]}"; do
         if [[ $k = ${KEYS[$((${#SKILL_LIST[@]}-1))]} ]]; then
             echo "{\"id\": ${SKILL_LIST[$k]},\"name\": \"$k\",\"durationInMonths\": ${SKILL_DURATION_LIST[$k]}}"
@@ -73,11 +73,15 @@ display_result() {
 }
 
 get_all_skills_duration() {
-    var=$(declare -p "$1")
-    eval "declare -A _arr="${var#*=}
+    get_associative_array $1
     for k in "${!_arr[@]}"; do
         get_skill_duration $k
     done
+}
+
+get_associative_array() {
+    var=$(declare -p "$1")
+    eval "declare -A _arr="${var#*=}
 }
 
 get_skill_duration() {
@@ -123,8 +127,7 @@ print_associative_array() {
     # this function is for debug purpose
     # source : https://stackoverflow.com/questions/4069188/how-to-pass-an-\
     # associative-array-as-argument-to-a-function-in-bash
-    var=$(declare -p "$1")
-    eval "declare -A _arr="${var#*=}
+    get_associative_array $1
     for k in "${!_arr[@]}"; do
         echo "$k: ${_arr[$k]}"
     done
