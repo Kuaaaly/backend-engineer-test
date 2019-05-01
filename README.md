@@ -6,11 +6,11 @@ Running this code with Docker should simpler and faster. _Obviously, you should 
 ```
 docker build -t kuaaaly/backend-engineer-test:0.1 https://github.com/Kuaaaly/backend-engineer-test.git
 ```
-1. Run:
+2. Run:
 ```
 docker run -it kuaaaly/backend-engineer-test:0.1 /bin/bash
 ```
-1. Once you are in you can run the code by typing :
+3. Once you are in you can run the code by typing :
 ```
 cd /root/backend-engineer-test
 ./exercice.sh
