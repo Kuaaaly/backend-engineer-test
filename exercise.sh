@@ -1,9 +1,10 @@
 #!/bin/bash
-# Description
-# Usage : ./exercise.sh
-# Création : Quentin Le Graverend - 26/04/2019
-# Modification : Quentin Le Graverend - 26/04/2019
-# version 0.1
+# description: bash script computing skill duration for a given freelancer from
+# JSON data file.
+# usage: ./exercise.sh
+# creation: Quentin Le Graverend - 26/04/2019
+# modification: Quentin Le Graverend - 01/05/2019
+# version: 0.1
 
 # ERROR CONTROL
 set -eu
