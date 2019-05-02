@@ -51,16 +51,16 @@ The output should look like the following:
 }
 ```
 
-### Run via Ubuntu / macOS (not tested)
+### Run via Ubuntu / ~macOS~ (not tested)
 Requirements:
 - bash version 4.4.19
 - jq version 1.5-1
 - git
 
 
-| macOS | Ubuntu |
-|---|---|
-| `brew install bash git jq` | `apt-get install git jq` |
+| Ubuntu |
+|---|
+| `apt-get install git jq` |
 
 Then:
 ```
