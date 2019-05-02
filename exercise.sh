@@ -76,9 +76,7 @@ display_result() {
 }
 
 get_all_skills_duration() {
-    var=$(declare -p "$1")
-    eval "declare -A _arr="${var#*=}
-    for k in "${!_arr[@]}"; do
+    for k in "${!SKILL_LIST[@]}"; do
         get_skill_duration $k
     done
 }
@@ -135,5 +133,5 @@ print_associative_array() {
 
 # MAIN
 get_skill_list
-get_all_skills_duration "SKILL_LIST"
+get_all_skills_duration
 display_result | jq .
