@@ -1,6 +1,6 @@
 #!/bin/bash
-# description: bash script computing skill duration for a given freelancer from
-# JSON data file.
+# description: bash script computing skill duration for a given freelancer
+# from JSON data file.
 # usage: ./exercise.sh
 # creation: Quentin Le Graverend - 26/04/2019
 # modification: Quentin Le Graverend - 01/05/2019
@@ -85,6 +85,9 @@ get_skill_duration() {
     local i=0
     local SKILL_NAME=$1
     declare -A EXP_DURATION_LIST
+    # using a SKILL_NAME, we loop over all experiences to find all the
+    # occurences of this SKILL_NAME and build an associative array joining
+    # START_DATE to END_DATE
     while another_element .freelance.professionalExperiences[$i]; do
         local j=0
         while another_element .freelance.professionalExperiences[$i].skills[$j]; do
