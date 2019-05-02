@@ -1,7 +1,7 @@
 ## Run it
 
 ### Run via Docker
-Running this code with Docker should be easier and faster. _Obviously, you should have Docker installed._
+Running this code with Docker should be easier and faster. _You should have Docker installed._
 1. Build:
 ```
 docker build -t kuaaaly/backend-engineer-test:0.1 https://github.com/Kuaaaly/backend-engineer-test.git
@@ -51,7 +51,7 @@ The output should look like the following:
 }
 ```
 
-### Run via Linux / macOS (not tested)
+### Run via Ubuntu / macOS (not tested)
 Requirements:
 - bash version 4.4.19
 - jq version 1.5-1
@@ -76,8 +76,8 @@ cd backend-engineer-test
 var=$(declare -p "$1")
 eval "declare -A _arr="${var#*=}
 ```
-is repeated 4 times, this is not "DRY-compliant". I looked for a while for a way to integrated it in a function but I did not find a solution for now. May be there is not...
+is repeated 3 times, this is not "DRY-compliant". I looked for a while for a way to integrated it in a function but I did not find a solution for now. May be there is not...
 
-2. Actually, the script need the experiences to be ordered by startDate (from the most recent to the oldest). If the experiences are not well ordered the script will compute wrong values. This problem is pretty easy to fix if we add a function that order the experiences.
+2. Actually, the script need the experiences to be ordered by startDate (from the most recent to the oldest). If the experiences are not well ordered the script will compute wrong values. This problem is pretty easy to fix if we add a function  ordering the experiences.
 
 3. Skills in the result are not ordered by id, we could had something to display them by ascending or decreasing order
