@@ -80,4 +80,4 @@ is repeated 3 times, this is not "DRY-compliant". I looked for a while for a way
 
 2. Actually, the script need the experiences to be ordered by startDate (from the most recent to the oldest). If the experiences are not well ordered the script will compute wrong values. This problem is pretty easy to fix if we add a function  ordering the experiences.
 
-3. Skills in the result are not ordered by id, we could had something to display them by ascending or decreasing order
+3. Skills in the result are not ordered by id, we could had something to display them by ascending or decreasing order.
